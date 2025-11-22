@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rill-ai"
+version = "0.1.0"
+description = "Rill - AI Agent Framework"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+authors = [
+    {name = "zhixiangxue"}
+]
+keywords = ["ai", "agent", "framework", "workflow"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "pydantic>=2.0.0",
+    "loguru>=0.7.0",
+    "chak",
+]
+
+[project.urls]
+Homepage = "https://github.com/zhixiangxue/rill-ai"
+Repository = "https://github.com/zhixiangxue/rill-ai"
+Issues = "https://github.com/zhixiangxue/rill-ai/issues"
+
+[tool.setuptools]
+packages = ["rill", "rill.core", "rill.utils"]

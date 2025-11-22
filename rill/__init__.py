@@ -8,4 +8,18 @@ sys.modules['rill.flow'] = rill.core.flow
 import chak
 sys.modules['rill.chak'] = chak
 
-__all__ = []
+# 导出核心类和函数
+from rill.core import Flow, FlowState, Node, node, Route, goto, DYNAMIC, END
+
+__version__ = "0.1.0"
+
+__all__ = [
+    'Flow',
+    'FlowState',
+    'Node',
+    'node',
+    'Route',
+    'goto',
+    'DYNAMIC',
+    'END',
+]
