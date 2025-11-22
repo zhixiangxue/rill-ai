@@ -27,7 +27,7 @@ classifiers = [
 dependencies = [
     "pydantic>=2.0.0",
     "loguru>=0.7.0",
-    "chak",
+    "chakpy>=0.1.4",
 ]
 
 [project.urls]
