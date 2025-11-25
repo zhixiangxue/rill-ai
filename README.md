@@ -12,8 +12,6 @@
 
 **Minimal orchestration that lets you use any LLM client, any tools, any storage to build your AI agent applications.**
 
-Lighter and simpler than CrewAI and LangGraph.
-
 </div>
 
 ---
