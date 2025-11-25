@@ -74,10 +74,11 @@ class MyRAGFlow(Flow):
         conv = Conversation("openai/gpt-4o-mini", api_key="YOUR_KEY")
         result = await conv.asend(user_input)
         
-        if result.needs_search:
+        # Decide routing based on LLM response
+        if "search" in result.content.lower():
             # List means parallel: trigger vector search and web search simultaneously
             return goto([self.vector_search, self.web_search], user_input)
-        return goto(self.answer, result)
+        return goto(self.answer, result.content)
     
     @node(goto="answer")
     async def vector_search(self, query):
@@ -94,7 +95,7 @@ class MyRAGFlow(Flow):
         # Multiple predecessors auto-merge: sources = {"vector_search": [...], "web_search": [...]}
         from chak import Conversation
         conv = Conversation("openai/gpt-4o-mini", api_key="YOUR_KEY")
-        return await conv.asend(sources)
+        return await conv.asend(str(sources))
 
 # Run
 await MyRAGFlow().run("What is quantum entanglement?")
