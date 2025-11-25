@@ -8,11 +8,11 @@
 [![Downloads](https://img.shields.io/pypi/dm/rillpy)](https://pypi.org/project/rillpy/)
 [![GitHub Stars](https://img.shields.io/github/stars/zhixiangxue/rill-ai?style=social)](https://github.com/zhixiangxue/rill-ai)
 
-**A zero-dependency flow orchestration kernel for building AI workflows your way.**
+**A zero-dependency flow orchestration library for building AI workflows your way.**
 
-**A minimal orchestration layer that lets you use any LLM client, any tools, any storage to build your AI agent applications.**
+**Minimal orchestration that lets you use any LLM client, any tools, any storage to build your AI agent applications.**
 
-Inspired by CrewAI and LangGraph, designed to be lighter and simpler.
+Lighter and simpler than CrewAI and LangGraph.
 
 </div>
 
@@ -20,27 +20,27 @@ Inspired by CrewAI and LangGraph, designed to be lighter and simpler.
 
 ## Why Rill?
 
-Building AI agents shouldn't require heavy frameworks. Sometimes you just need a simple orchestration piece:
+You don't need heavy frameworks to build AI agents. Sometimes you just need simple orchestration:
 
 - Want to use your own LLM client (chak / OpenAI SDK / Anthropic SDK)? ✅
 - Want to use your own tools (functions / MCP servers / custom implementations)? ✅
 - Want to keep your codebase lightweight and dependencies minimal? ✅
 - Prefer code over YAML/JSON configs? Code is the orchestration. ✅
 
-**Rill is just an orchestration component** - bring your own pieces, Rill handles the flow.
+**Rill just handles orchestration** - bring your own pieces, Rill manages the flow.
 
 ---
 
-## Core Philosophy
+## Core Concepts
 
-Rill embraces the **"code is flow"** design philosophy pioneered by CrewAI - use decorators to define nodes, use Python functions to express logic, no YAML or JSON configs needed.
+Rill draws inspiration from CrewAI's **"code is flow"** approach - use decorators to define nodes, use Python functions to express logic, no YAML or JSON configs needed.
 
 Built on this foundation, Rill adds:
 
-1. **Forward routing**: Declare next steps with `goto` right where you are, not reverse subscription
-2. **Zero binding**: Framework handles orchestration only, everything else is your call
+1. **Direct routing**: Declare next steps with `goto` right where you are, not reverse subscription
+2. **No dependencies**: Framework handles orchestration only, everything else is your call
 
-*Special thanks to CrewAI and LangGraph for inspiring Rill's design.*
+*Thanks to CrewAI and LangGraph for the inspiration.*
 
 ---
 
@@ -49,7 +49,7 @@ Built on this foundation, Rill adds:
 ### Installation
 
 ```bash
-# From PyPI (coming soon)
+# From PyPI
 pip install rillpy
 
 # From GitHub
@@ -61,58 +61,9 @@ cd rill-ai
 pip install -e .
 ```
 
-### Build a RAG workflow in 30 seconds
-
-```python
-from rill import Flow, node, DYNAMIC, goto
-
-class MyRAGFlow(Flow):
-    @node(start=True, goto=DYNAMIC)
-    async def query(self, user_input):
-        # Use your own LLM client (e.g., chak)
-        from chak import Conversation
-        conv = Conversation("openai/gpt-4o-mini", api_key="YOUR_KEY")
-        result = await conv.asend(user_input)
-        
-        # Decide routing based on LLM response
-        if "search" in result.content.lower():
-            # List means parallel: trigger vector search and web search simultaneously
-            return goto([self.vector_search, self.web_search], user_input)
-        return goto(self.answer, result.content)
-    
-    @node(goto="answer")
-    async def vector_search(self, query):
-        # Use your favorite vector database
-        return await my_chromadb.search(query)
-    
-    @node(goto="answer")
-    async def web_search(self, query):
-        # Use your own search tool
-        return await my_searxng.search(query)
-    
-    @node()
-    async def answer(self, sources):
-        # Multiple predecessors auto-merge: sources = {"vector_search": [...], "web_search": [...]}
-        from chak import Conversation
-        conv = Conversation("openai/gpt-4o-mini", api_key="YOUR_KEY")
-        return await conv.asend(str(sources))
-
-# Run
-await MyRAGFlow().run("What is quantum entanglement?")
-```
-
-**Notice:**
-- ✅ LLM client: `chak` (or OpenAI SDK / Anthropic SDK, your choice)
-- ✅ Vector database: `chromadb` (or Pinecone / Qdrant, your choice)
-- ✅ Search tool: your own implementation (or MCP / LangChain Tools, your choice)
-- ✅ Rill only handles: which node first, which ones parallel, how to merge inputs
-- ✅ Data flows through return values (node → node) and shared state (`self.state`)
-
----
-
 ## Core Features
 
-### 🌱 Zero Binding
+### 🌱 No Lock-in
 
 Framework doesn't care what LLM, tools, or databases you use. Only provides orchestration.
 
@@ -120,7 +71,7 @@ Framework doesn't care what LLM, tools, or databases you use. Only provides orch
 
 Define nodes with `@node` decorator, declare routing with `goto`, no DSL needed.
 
-### 🌻 Forward Declaration
+### 🌻 Direct Routing
 
 Use `goto(next, data)` to directly specify next step in current node. Matches how humans think.
 
@@ -280,21 +231,21 @@ print(final_state.results)         # All accumulated data persists here
 | Your Situation | Recommendation |
 |----------------|----------------|
 | Quick GPT app, don't want to manage anything | 👉 LangChain / LangGraph (all-in-one convenience) |
-| Want to use my own LLM client (chak / OpenAI SDK) + custom tools | 👉 **Rill** (orchestration freedom) |
-| Just want pure orchestration layer, pick other components myself | 👉 **Rill** |
+| Want to use my own LLM client (chak / OpenAI SDK) + custom tools | 👉 **Rill** (orchestration flexibility) |
+| Just want orchestration only, pick other components myself | 👉 **Rill** |
 
 ---
 
 ## FAQ
 
 **Q: What's the difference between Rill and LangGraph?**  
-A: LangGraph is an all-in-one suite (orchestration + LLM + tools + memory), Rill only handles orchestration layer, other components are your choice.
+A: LangGraph is a complete package (orchestration + LLM + tools + memory), Rill only handles orchestration, other components are up to you.
 
 **Q: I'm already using LangChain Tools, can I use Rill?**  
 A: Yes! Rill doesn't care where your tools come from, just call them directly in nodes.
 
 **Q: Does Rill support state persistence?**  
-A: Current `FlowState` is in-memory state (Pydantic model), persistence is your choice (Redis / PostgreSQL / files), no binding to any storage solution.
+A: Current `FlowState` is in-memory state (Pydantic model), persistence is your choice (Redis / PostgreSQL / files), no tie to any storage.
 
 **Q: I want to use my own LLM client (e.g., chak), how to integrate?**  
 A: Just `import chak` in nodes and call it, Rill doesn't care which LLM you use. Example:
@@ -327,7 +278,7 @@ A: Not yet. Parallel nodes updating state simultaneously may cause race conditio
 
 ### `Flow`
 
-Orchestration engine, inherit to define your workflow.
+Main workflow class, inherit to define your workflow.
 
 ```python
 class MyFlow(Flow):
@@ -341,7 +292,7 @@ class MyFlow(Flow):
 
 ### `@node`
 
-Decorator to mark methods as executable flow nodes.
+Decorator to mark methods as workflow nodes.
 
 ```python
 @node(start=False, goto=None, max_loop=None)
@@ -359,7 +310,7 @@ def my_node(self, inputs):
 
 ### `goto(target, data)`
 
-Construct routing decision for DYNAMIC nodes.
+Choose next node for DYNAMIC routing.
 
 ```python
 @node(goto=DYNAMIC)
@@ -375,11 +326,11 @@ async def decide(self, inputs):
 
 ### `DYNAMIC`
 
-Constant for runtime-determined routing. Use with `goto()`.
+Use this for dynamic routing decisions. Use with `goto()`.
 
 ### `FlowState`
 
-Shared mutable state container (Pydantic model).
+Shared state object (Pydantic model).
 
 ```python
 # Access state from any node
@@ -425,14 +376,14 @@ stats = flow.stats()
 
 ```
 ┌─────────────────────────────────────────┐
-│      Your Application Layer             │
+│      Your Application                   │
 │  LLM: chak / OpenAI / Anthropic / ...   │
 │  Tools: MCP / Functions / LangChain     │
 │  Storage: ChromaDB / PostgreSQL / Redis │
 └──────────────┬──────────────────────────┘
-               │ Only depends on Rill for orchestration
+               │ Use Rill for orchestration
 ┌──────────────▼──────────────────────────┐
-│         Rill Orchestration Layer        │
+│         Rill Orchestration              │
 │  @node + goto + parallel + State        │
 └─────────────────────────────────────────┘
 ```
