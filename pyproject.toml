@@ -34,4 +34,4 @@ Repository = "https://github.com/zhixiangxue/rill-ai"
 Issues = "https://github.com/zhixiangxue/rill-ai/issues"
 
 [tool.setuptools]
-packages = ["rill", "rill.core", "rill.utils"]
+packages = ["rill", "rill.utils"]
