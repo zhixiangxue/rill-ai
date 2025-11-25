@@ -25,7 +25,7 @@ import sys
 from pydantic import BaseModel
 from dataclasses import dataclass
 
-from ..utils.logger import logger
+from .utils.logger import logger
 
 # Interned constants for routing control
 DYNAMIC = sys.intern("__dynamic__")  # Runtime-determined routing
