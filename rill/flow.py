@@ -308,12 +308,17 @@ class Flow:
             
             current_node_name, current_input = queue.pop(0)
             
-            if current_node_name in executed:
-                continue
-            
             current_node = self._nodes[current_node_name]
-            
             max_loop = getattr(current_node, '_max_loop', None)
+            
+            # Allow re-execution for nodes with max_loop, otherwise skip if already executed
+            if current_node_name in executed:
+                if not max_loop:
+                    # No max_loop: skip already executed node
+                    continue
+                # Has max_loop: allow re-execution but check counter
+            
+            # Update loop counter for max_loop nodes
             if max_loop:
                 self._loop_counters[current_node_name] = self._loop_counters.get(current_node_name, 0) + 1
                 if self._loop_counters[current_node_name] > max_loop:
