@@ -12,9 +12,9 @@
 
 配置方式：
     通过环境变量配置：
-    - LOG_LEVEL: 日志级别（DEBUG/INFO/WARNING/ERROR）默认 INFO
-    - LOG_TO_FILE: 是否输出到文件（true/false）默认 false
-    - LOG_FILE: 日志文件路径，默认 logs/rill.log
+    - RILL_LOG_LEVEL: 日志级别（DEBUG/INFO/WARNING/ERROR/DISABLE）默认 INFO
+    - RILL_LOG_TO_FILE: 是否输出到文件（true/false）默认 false
+    - RILL_LOG_FILE: 日志文件路径，默认 logs/rill.log
 """
 
 import os
@@ -27,9 +27,9 @@ from loguru import logger as _logger
 _logger.remove()
 
 # ===== 配置参数（从环境变量读取） =====
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
-LOG_TO_FILE = os.getenv("LOG_TO_FILE", "false").lower() == "true"
-LOG_FILE = os.getenv("LOG_FILE", "logs/rill.log")
+LOG_LEVEL = os.getenv("RILL_LOG_LEVEL", "INFO").upper()
+LOG_TO_FILE = os.getenv("RILL_LOG_TO_FILE", "false").lower() == "true"
+LOG_FILE = os.getenv("RILL_LOG_FILE", "logs/rill.log")
 
 # ===== 日志格式 =====
 # 简洁格式：时间 | 级别 | 消息
@@ -61,10 +61,15 @@ def _setup_logger():
         return
     
     # 读取环境变量
-    log_level = os.getenv("LOG_LEVEL", "INFO").upper()
-    log_to_file = os.getenv("LOG_TO_FILE", "false").lower() == "true"
-    log_file = os.getenv("LOG_FILE", "logs/rill.log")
+    log_level = os.getenv("RILL_LOG_LEVEL", "INFO").upper()
+    log_to_file = os.getenv("RILL_LOG_TO_FILE", "false").lower() == "true"
+    log_file = os.getenv("RILL_LOG_FILE", "logs/rill.log")
     log_format = DETAILED_FORMAT if log_level == "DEBUG" else SIMPLE_FORMAT
+    
+    # Special case: if LOG_LEVEL is DISABLE, don't add any handlers
+    if log_level == "DISABLE":
+        _logger_initialized = True
+        return
     
     # 1. 控制台输出（始终开启）
     _logger.add(
@@ -93,7 +98,6 @@ def _setup_logger():
             diagnose=True,
             encoding="utf-8"
         )
-        _logger.info(f"日志文件输出已启用: {log_file}")
     
     _logger_initialized = True
 
@@ -116,9 +120,22 @@ def set_level(level: str):
     """运行时动态设置日志级别
     
     Args:
-        level: 日志级别 (DEBUG/INFO/WARNING/ERROR)
+        level: 日志级别 (DEBUG/INFO/WARNING/ERROR/DISABLE)
+    
+    Example:
+        >>> from rill.utils.logger import set_level
+        >>> set_level("ERROR")   # Only show ERROR and above
+        >>> set_level("DISABLE") # Disable all logs
     """
+    global _logger_initialized
     level = level.upper()
+    
+    # Special case: disable all logging
+    if level == "DISABLE":
+        _logger.remove()
+        _logger_initialized = True
+        return
+    
     _logger.remove()  # 移除所有 handler
     # 重新添加控制台输出
     _logger.add(
@@ -129,5 +146,6 @@ def set_level(level: str):
         backtrace=True,
         diagnose=True
     )
+    _logger_initialized = True
 
 __all__ = ["logger", "set_level"]
