@@ -276,6 +276,10 @@ class Flow:
         """
         import time
         
+        # Reset per-run state to allow Flow instance reuse across multiple run() calls
+        self._loop_counters.clear()
+        self._node_timings.clear()
+        
         self._flow_start_time = time.time()
         
         logger.debug("========= Flow execution started ==========")
